@@ -48,9 +48,9 @@ jobs:
             CUDA_MINOR=8
             CUDA_PATCH=0
             COMPUTE_TYPE=${{ matrix.compute_type }}
-            IMAGE_NAME=${{ matrix.image_name }}${${${{ matrix.compute_type }}/gpu/-gpu}/cpu/}
+            IMAGE_NAME=${{ matrix.image_name }}
             NCPUS=4
-          tags: jaredlander/${{ matrix.image_name }}:${{ matrix.r_major }}.${{ matrix.r_minor }}.${{ matrix.r_patch }}
+          tags: jaredlander/${{ matrix.image_name }}:${{ matrix.compute_type }}-${{ matrix.r_major }}.${{ matrix.r_minor }}.${{ matrix.r_patch }}
           cache-from: type=registry,ref=user/app:latest
           cache-to: type=inline
   keepalive-job:

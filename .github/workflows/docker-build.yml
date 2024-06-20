@@ -16,16 +16,7 @@ jobs:
         image_name: ['r-ml']
         base_image: ['rocker/geospatial']
         compute_type: ['cpu', 'gpu']
-        r_major: [4]
-        r_minor: [4]
-        r_patch: [1]
-        include:
-          - r_major: 4
-            r_minor: 4
-            r_patch: 1
-          - r_major: 4
-            r_minor: 4
-            r_patch: 0
+        r_version: [[4, 4 ,1], [4, 4 ,1]]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -44,16 +35,16 @@ jobs:
           push: true
           build-args: |
             BASE_IMAGE=${{ matrix.base_image }}
-            R_MAJOR=${{ matrix.r_major }}
-            R_MINOR=${{ matrix.r_minor }}
-            R_PATCH=${{ matrix.r_patch }}
+            R_MAJOR=${{ matrix.r_version[0] }}
+            R_MINOR=${{ matrix.r_version[1] }}
+            R_PATCH=${{ matrix.r_version[2] }}
             CUDA_MAJOR=11
             CUDA_MINOR=8
             CUDA_PATCH=0
             COMPUTE_TYPE=${{ matrix.compute_type }}
             IMAGE_NAME=${{ matrix.image_name }}
             NCPUS=4
-          tags: jaredlander/${{ matrix.image_name }}:${{ matrix.compute_type }}-${{ matrix.r_major }}.${{ matrix.r_minor }}.${{ matrix.r_patch }}
+          tags: jaredlander/${{ matrix.image_name }}:${{ matrix.compute_type }}-${{ matrix.r_version[0] }}.${{ matrix.r_version[1] }}.${{ matrix.r_version[2] }}
           cache-from: type=registry,ref=user/app:latest
           cache-to: type=inline
   keepalive-job:

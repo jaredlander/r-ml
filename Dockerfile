@@ -161,18 +161,27 @@ FROM ${COMPUTE_TYPE} AS main
 
 # install many other R packages we use
 RUN install2.r --repos getOption --skipinstalled --ncpus ${NCPUS} \
-    leafem \
-    leafgl \
+    # mapping    
+    leafem leafgl h3jsr \
+    rsgeo sfdep \
+    # data manipulation
     arrow \
     duckdb duckplyr \
     dbplyr dtplyr \
     DBI odbc RPostgres pool connections dm \
     # for xgboost
     data.table jsonlite DiagrammeR \
-    pins \
+    #common ML packages
+    glmnet\ 
+    randomForest ranger \
+    party partykit rpart.plot \
+    pre \
+    C50 \
     # tidymodels
     tidymodels themis vetiver \
     coefplot \
+    # other
+    pins \
     plumber \
     # shiny related
     bs4lib shinyWidgets shinyjs shinyalert rsconnect \
@@ -195,12 +204,12 @@ RUN install2.r --repos getOption --skipinstalled --ncpus ${NCPUS} \
     && rm -rf /tmp/downloaded_packages
 
 # install packages from github
-RUN Rscript -e "purrr::walk(c('geoarrow/geoarrow-r', 'calderonsamuel/ollama', 'mlverse/chattr'), devtools::install_github)"
+RUN Rscript -e "purrr::walk(c('geoarrow/geoarrow-r', 'calderonsamuel/ollama', 'mlverse/chattr', 'JosiahParry/h3o'), remotes::install_github)"
 
 # Use some nice config settings
 # we also want these to be mountable
 # so we will figure out volumes for this file and similar ones
-COPY ./config/rstudio-prefs.json /home/${USER}/.config/rstudio/rstudio-prefs.json
+COPY ./config/rstudio-prefs.json /home/${USER:-rstudio}/.config/rstudio/rstudio-prefs.json
 
 # this not needed but leaving for testing
 # RUN echo "Type: at end: ${COMPUTE_TYPE}"

@@ -1,0 +1,63 @@
+name: Build R ML Images
+
+on:
+  push:
+    branches:
+      - 'main'
+  schedule:
+    # Run at 12:30 on the first of the month
+    - cron: "30 12 1 * *"
+
+jobs:
+  docker-builder:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image_name: ['r-ml']
+        base_image: ['rocker/geospatial']
+        compute_type: ['cpu', 'gpu']
+        include:
+          - r_major: 4
+            r_minor: 4
+            r_patch: 1
+          - r_major: 4
+            r_minor: 4
+            r_patch: 0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          build-args: |
+            BASE_IMAGE=${{ matrix.base_image }}
+            R_MAJOR=${{ matrix.r_major }}
+            R_MINOR=${{ matrix.r_minor }}
+            R_PATCH=${{ matrix.r_patch }}
+            CUDA_MAJOR=11
+            CUDA_MINOR=8
+            CUDA_PATCH=0
+            COMPUTE_TYPE=${{ matrix.compute_type }}
+            IMAGE_NAME=${{ matrix.image_name }}${${${{ matrix.compute_type }}/gpu/-gpu}/cpu/}
+            NCPUS=4
+          tags: jaredlander/${{ matrix.image_name }}:${{ matrix.r_major }}.${{ matrix.r_minor }}.${{ matrix.r_patch }}
+          cache-from: type=registry,ref=user/app:latest
+          cache-to: type=inline
+  keepalive-job:
+    name: Keepalive Workflow
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: gautamkrishnar/keepalive-workflow@v2

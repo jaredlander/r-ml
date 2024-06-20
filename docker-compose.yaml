@@ -1,0 +1,61 @@
+version: '3.4'
+
+x-anchors:
+  R_MAJOR: &r-major 4
+  R_MINOR: &r-minor 4
+  R_PATCH: &r-patch 1
+  INTERNAL_NAME: &internal-name ${IMAGE_NAME:-workshop}
+  # would be nice if we can use the above arguments for this line instead of hard coding the R version
+  IMAGE_NAME: &image_name ${OWNER:-jaredlander}/${IMAGE_NAME:-workshop}:4.4.1
+
+services:
+  r_ml:
+    # this defines everything we need for building the image
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      # these args are used during build time
+      args:
+        # what our image is based on
+        BASE_IMAGE: ${BASE_IMAGE:-rocker/rstudio}
+        # the version of R we want
+        R_MAJOR: *r-major
+        R_MINOR: *r-minor
+        R_PATCH: *r-patch
+        # version of cuda (used for when installing a GPU-based torch)
+        CUDA_MAJOR: 11
+        CUDA_MINOR: 8
+        CUDA_PATCH: 0
+        # cpu or gpu?
+        COMPUTE_TYPE: ${COMPUTE_TYPE-cpu}
+        # the name of the image itself
+        IMAGE_NAME: *internal-name
+        # how many cores to install R packages with
+        NCPUS: 4
+    # the full name and tag of the image
+    image: *image_name
+    # this is the name that will appear when the image is running
+    container_name: *internal-name
+    # comment out the `deploy` part if you don't have a GPU
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: ['gpu']
+    # this let's us get all the env vars from the .env file
+    # for our purposes there is nothing sensitive in this file
+    # (other than the password for the rstudio user, which is ephemeral anyway)
+    # and nothing sensitive should be added since it is checked into git
+    env_file:
+      - .env
+    # allows us to expose a non-traditional port for RStudio
+    ports:
+      - ${RSTUDIO_PORT:-8787}:8787
+    # let's us save our work on the host machine
+    volumes:
+      # mount the current working directory to the /home/rstudio/project directory
+      # might need to be whatever the "main user" is
+      # be sure to adjust the project .Rprofile to not source renv when used inside of docker
+      - $PWD:/home/rstudio/${IMAGE_NAME:-workshop}

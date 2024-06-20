@@ -16,6 +16,9 @@ jobs:
         image_name: ['r-ml']
         base_image: ['rocker/geospatial']
         compute_type: ['cpu', 'gpu']
+        r_major: [4]
+        r_minor: [4]
+        r_patch: [1]
         include:
           - r_major: 4
             r_minor: 4

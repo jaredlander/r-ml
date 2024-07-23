@@ -172,7 +172,7 @@ RUN install2.r --repos getOption --skipinstalled --ncpus ${NCPUS} \
     # for xgboost
     data.table jsonlite DiagrammeR \
     #common ML packages
-    glmnet\ 
+    glmnet \ 
     randomForest ranger \
     party partykit rpart.plot \
     pre \
@@ -180,9 +180,14 @@ RUN install2.r --repos getOption --skipinstalled --ncpus ${NCPUS} \
     # tidymodels
     tidymodels themis vetiver \
     coefplot \
+    # torch related
+    luz zeallot torchvision tok torchexport torchdatasets \
+    # LLMs
+    ollama \
     # other
     pins \
     plumber \
+    tictoc \
     # shiny related
     bs4lib shinyWidgets shinyjs shinyalert rsconnect \
     # nice tables

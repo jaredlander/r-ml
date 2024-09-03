@@ -47,6 +47,15 @@ jobs:
           tags: jaredlander/${{ matrix.image_name }}:${{ matrix.compute_type }}-${{ matrix.r_version[0] }}.${{ matrix.r_version[1] }}.${{ matrix.r_version[2] }}
           cache-from: type=registry,ref=user/app:latest
           cache-to: type=inline
+      - name: Copy README to Dockerhub
+        uses: peter-evans/dockerhub-description@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_RWD }}
+          repository: jaredlander/${{ matrix.image_name }}
+          short-description: Images with the most common ML frameworks in R for Both CPU and GPU
+          readme-filepath: ./README.md
+          enable-url-completion: true
   keepalive-job:
     name: Keepalive Workflow
     runs-on: ubuntu-latest
